@@ -11,10 +11,10 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Movimento Controlado com Pygame')
 
 # Carrega as imagens do personagem
-person_front = pygame.image.load("person_front.png")
-person_left = pygame.image.load("person_left.png")
-person_right = pygame.image.load("person_right.png")
-person_back = pygame.image.load("person_back.png")
+person_front = pygame.image.load("./person/person_front.png")
+person_left = pygame.image.load("./person/person_left.png")
+person_right = pygame.image.load("./person/person_right.png")
+person_back = pygame.image.load("./person/person_back.png")
 
 # Redimensiona as imagens do personagem para 50x50 pixels
 person_front = pygame.transform.scale(person_front, (70, 70))
