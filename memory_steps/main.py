@@ -9,7 +9,7 @@ pygame.init()
 screen_width = 800
 screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Movimento Controlado com Pygame')
+pygame.display.set_caption('Caminho Correto - Pygame')
 
 # Carrega as imagens do personagem
 person_front = pygame.image.load("./person/person_front.png")
@@ -37,12 +37,18 @@ direction = None
 
 # Definindo a grade de caminhos e o caminho certo
 cell_size = 70  # Tamanho de cada quadrado
-grid_width = screen_width // cell_size  # Quantidade de quadrados por linha
-grid_height = screen_height // cell_size  # Quantidade de quadrados por coluna
+grid_width = 3  # Número de quadrados por linha
+grid_height = screen_height // cell_size  # Número de quadrados até o topo da tela
 
-# Gera o caminho correto de forma aleatória
-correct_path = [(random.randint(0, grid_width - 1), i) for i in range(grid_height)]
-path_index = 0
+# Gera um caminho reto e aleatório de quadrados para seguir até o topo
+correct_path = [(random.randint(0, grid_width - 1), grid_height - 1)]
+for i in range(grid_height - 2, -1, -1):
+    last_x = correct_path[-1][0]
+    new_x = last_x + random.choice([-1, 1])
+    new_x = max(0, min(grid_width - 1, new_x))  # Garante que o novo x esteja nos limites
+    correct_path.append((new_x, i))
+
+path_index = len(correct_path) - 1  # Índice inicial do caminho para o topo
 
 # Controle do jogo
 game_active = False  # O jogo começa com o caminho sendo mostrado
@@ -65,10 +71,6 @@ while running:
                 current_image = person_back
                 direction = (0, -cell_size)
                 moving = True
-            elif event.key == pygame.K_DOWN:
-                current_image = person_front
-                direction = (0, cell_size)
-                moving = True
             elif event.key == pygame.K_LEFT:
                 current_image = person_left
                 direction = (-cell_size, 0)
@@ -87,8 +89,8 @@ while running:
         # Verifica se a posição está no caminho correto
         player_pos = (x // cell_size, y // cell_size)
         if player_pos == correct_path[path_index]:  # Caminho correto
-            path_index += 1
-            if path_index == len(correct_path):  # Chegou ao final do caminho
+            path_index -= 1
+            if path_index < 0:  # Chegou ao topo do caminho
                 win = True
                 game_active = False
         else:  # Caminho incorreto
