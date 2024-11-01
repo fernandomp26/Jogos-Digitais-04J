@@ -37,16 +37,14 @@ direction = None
 
 # Definindo a grade de caminhos e o caminho certo
 cell_size = 70  # Tamanho de cada quadrado
-grid_width = 3  # Número de quadrados por linha
-grid_height = screen_height // cell_size  # Número de quadrados até o topo da tela
+grid_height = screen_height // cell_size  # Número de quadrados por coluna
+grid_positions = [1 * cell_size, 2 * cell_size, 3 * cell_size]  # Posições fixas das 3 colunas
 
-# Gera um caminho reto e aleatório de quadrados para seguir até o topo
-correct_path = [(random.randint(0, grid_width - 1), grid_height - 1)]
+# Gera o caminho correto de forma aleatória em uma das três colunas
+correct_path = [(random.choice(grid_positions), grid_height - 1)]  # Começa na base da tela
 for i in range(grid_height - 2, -1, -1):
-    last_x = correct_path[-1][0]
-    new_x = last_x + random.choice([-1, 1])
-    new_x = max(0, min(grid_width - 1, new_x))  # Garante que o novo x esteja nos limites
-    correct_path.append((new_x, i))
+    new_x = random.choice(grid_positions)  # Escolhe aleatoriamente uma das três colunas
+    correct_path.append((new_x, i * cell_size))
 
 path_index = len(correct_path) - 1  # Índice inicial do caminho para o topo
 
@@ -87,7 +85,7 @@ while running:
         moving = False  # Para o movimento após o deslocamento
 
         # Verifica se a posição está no caminho correto
-        player_pos = (x // cell_size, y // cell_size)
+        player_pos = (x, y)
         if player_pos == correct_path[path_index]:  # Caminho correto
             path_index -= 1
             if path_index < 0:  # Chegou ao topo do caminho
@@ -103,7 +101,7 @@ while running:
     # Mostra o caminho correto se o jogo ainda não começou
     if not game_active and not win and not lose:
         for pos in correct_path:
-            pygame.draw.rect(screen, (0, 255, 0), (pos[0] * cell_size, pos[1] * cell_size, cell_size, cell_size))
+            pygame.draw.rect(screen, (0, 255, 0), (pos[0], pos[1], cell_size, cell_size))
         pygame.display.flip()
         pygame.time.delay(2000)  # Mostra o caminho por 2 segundos
         game_active = True
