@@ -172,6 +172,7 @@ while jogando:
             jogando = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:  # Reiniciar o jogo
+                exibir_mensagem("Reiniciando o jogo...", branco)
                 reiniciar_jogo()
             elif event.key == pygame.K_q:  # Sair do jogo
                 jogando = False
@@ -200,6 +201,7 @@ while jogando:
                     if vidas == 0:
                         escolha = exibir_menu_game_over()
                         if escolha == "restart":
+                            exibir_mensagem("Reiniciando o jogo...", branco)
                             reiniciar_jogo()
                         else:
                             jogando = False
