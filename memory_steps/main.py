@@ -4,7 +4,7 @@ import time
 
 # Configurações básicas
 pygame.init()
-largura_tela, altura_tela = 600, 600
+largura_tela, altura_tela = 600, 700  # Altura aumentada para incluir o menu fixo
 tela = pygame.display.set_mode((largura_tela, altura_tela))
 pygame.display.set_caption("Jogo de Memorização")
 
@@ -21,7 +21,7 @@ tam_quadrado = 80
 
 # Carregar imagens
 background_image = pygame.image.load('./background/background.jpg')
-background_image = pygame.transform.scale(background_image, (largura_tela, altura_tela))
+background_image = pygame.transform.scale(background_image, (largura_tela, altura_tela - 100))
 character_front = pygame.image.load('./person/person_front.png')
 character_front = pygame.transform.scale(character_front, (tam_quadrado - 20, tam_quadrado - 20))
 character_back = pygame.image.load('./person/person_back.png')
@@ -31,7 +31,7 @@ character_left = pygame.transform.scale(character_left, (tam_quadrado - 20, tam_
 character_right = pygame.image.load('./person/person_right.png')
 character_right = pygame.transform.scale(character_right, (tam_quadrado - 20, tam_quadrado - 20))
 vida_icon = pygame.image.load('./assets/heart.png')
-vida_icon = pygame.transform.scale(vida_icon, (60, 60))
+vida_icon = pygame.transform.scale(vida_icon, (40, 40))
 
 current_character = character_front
 character_offset_x = (tam_quadrado - character_front.get_width()) // 2
@@ -40,7 +40,7 @@ character_offset_y = (tam_quadrado - character_front.get_height()) // 2
 # Funções auxiliares
 def calcular_offset_centralizado(linhas, colunas, tam_quadrado):
     offset_x = (largura_tela - (colunas * tam_quadrado)) // 2
-    offset_y = (altura_tela - (linhas * tam_quadrado)) // 2
+    offset_y = ((altura_tela - 100) - (linhas * tam_quadrado)) // 2
     return offset_x, offset_y
 
 def desenhar_grid(linhas, offset_x, offset_y):
@@ -79,11 +79,56 @@ def mostrar_caminho(caminho, offset_x, offset_y):
     pygame.display.flip()
 
 def desenhar_hud(fase, vidas):
-    fonte_fase = pygame.font.SysFont(None, 36)
-    texto_fase = fonte_fase.render(f"Fase: {fase}", True, branco)
+    fonte = pygame.font.SysFont(None, 36)
+    texto_fase = fonte.render(f"Fase: {fase}", True, branco)
     tela.blit(texto_fase, (10, 10))
     for i in range(vidas):
-        tela.blit(vida_icon, (largura_tela - (i + 1) * 65, 10))
+        tela.blit(vida_icon, (largura_tela - (i + 1) * 50, 10))
+
+def desenhar_menu():
+    """
+    Desenha o menu fixo na parte inferior da tela com as opções "R - Reiniciar" e "Q - Sair".
+    """
+    fonte = pygame.font.SysFont(None, 36)
+    pygame.draw.rect(tela, preto, (0, altura_tela - 100, largura_tela, 100))
+    texto_reiniciar = fonte.render("R - Reiniciar", True, branco)
+    texto_sair = fonte.render("Q - Sair", True, branco)
+    tela.blit(texto_reiniciar, (10, altura_tela - 60))
+    tela.blit(texto_sair, (300, altura_tela - 60))
+
+def exibir_mensagem(mensagem, cor):
+    """
+    Exibe uma mensagem no centro da tela com o fundo completamente preto.
+    """
+    tela.fill(preto)
+    fonte = pygame.font.SysFont(None, 55)
+    texto = fonte.render(mensagem, True, cor)
+    tela.blit(texto, (largura_tela // 4, altura_tela // 2))
+    pygame.display.flip()
+    time.sleep(2)
+
+def exibir_menu_game_over():
+    """
+    Exibe o menu de Game Over com as opções "Reiniciar Jogo" ou "Sair do Jogo".
+    """
+    while True:
+        tela.fill(preto)
+        fonte = pygame.font.SysFont(None, 48)
+        texto_reiniciar = fonte.render("1. Reiniciar Jogo", True, branco)
+        texto_sair = fonte.render("2. Sair do Jogo", True, branco)
+        tela.blit(texto_reiniciar, (largura_tela // 4, altura_tela // 3))
+        tela.blit(texto_sair, (largura_tela // 4, altura_tela // 3 + 60))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    return "restart"
+                elif event.key == pygame.K_2:
+                    return "exit"
 
 def reiniciar_jogo():
     global fase, vidas, linhas, grid_posicoes, offset_x, offset_y, caminho, posicao_personagem, caminho_jogador
@@ -97,97 +142,40 @@ def reiniciar_jogo():
     caminho_jogador = [posicao_personagem]
     mostrar_caminho(caminho, offset_x, offset_y)
 
-def iniciar_jogo():
-    global grid_posicoes, offset_x, offset_y, caminho, posicao_personagem, caminho_jogador
-    grid_posicoes = atualizar_grid_posicoes(linhas)
-    offset_x, offset_y = calcular_offset_centralizado(linhas, colunas, tam_quadrado)
-    caminho = gerar_caminho_continuo(fase + 1, grid_posicoes)
-    posicao_personagem = caminho[0]
-    caminho_jogador = [posicao_personagem]
-    mostrar_caminho(caminho, offset_x, offset_y)
-
-def exibir_mensagem(mensagem, cor):
-    tela.fill(preto)
-    fonte = pygame.font.SysFont(None, 55)
-    texto = fonte.render(mensagem, True, cor)
-    tela.blit(texto, (largura_tela // 4, altura_tela // 2))
-    pygame.display.flip()
-    time.sleep(2)
-
-def menu_principal():
-    tela.fill(preto)
-    fonte_menu = pygame.font.SysFont(None, 48)
-    opcoes = ["1. Iniciar Jogo", "2. Reiniciar Jogo", "3. Sair"]
-    for i, opcao in enumerate(opcoes):
-        texto = fonte_menu.render(opcao, True, branco)
-        tela.blit(texto, (largura_tela // 4, altura_tela // 3 + i * 50))
-    pygame.display.flip()
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1:
-                    return "start"
-                elif event.key == pygame.K_2:
-                    return "restart"
-                elif event.key == pygame.K_3:
-                    pygame.quit()
-                    quit()
-
-def menu_game_over():
-    tela.fill(preto)
-    fonte_menu = pygame.font.SysFont(None, 48)
-    opcoes = ["1. Reiniciar Jogo", "2. Sair"]
-    for i, opcao in enumerate(opcoes):
-        texto = fonte_menu.render(opcao, True, branco)
-        tela.blit(texto, (largura_tela // 4, altura_tela // 3 + i * 50))
-    pygame.display.flip()
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1:
-                    return "restart"
-                elif event.key == pygame.K_2:
-                    pygame.quit()
-                    quit()
-
 # Parâmetros do jogo
 fase = 1
 linhas = linhas_iniciais
 vidas = 3
+grid_posicoes = atualizar_grid_posicoes(linhas)
+offset_x, offset_y = calcular_offset_centralizado(linhas, colunas, tam_quadrado)
+caminho = gerar_caminho_continuo(fase + 1, grid_posicoes)
+posicao_personagem = caminho[0]
+caminho_jogador = [posicao_personagem]
 
-while True:
-    acao = menu_principal()
-    if acao == "start":
-        reiniciar_jogo()
-        jogando = True
-    elif acao == "restart":
-        reiniciar_jogo()
-        jogando = True
+# Loop principal
+jogando = True
+while jogando:
+    tela.fill(preto)
+    tela.blit(background_image, (0, 0))
+    desenhar_grid(linhas, offset_x, offset_y)
+    desenhar_hud(fase, vidas)
+    desenhar_menu()
 
-    while jogando:
-        tela.blit(background_image, (0, 0))
-        desenhar_grid(linhas, offset_x, offset_y)
-        desenhar_hud(fase, vidas)
+    tela.blit(
+        current_character,
+        (offset_x + posicao_personagem[0] * tam_quadrado + character_offset_x,
+         offset_y + posicao_personagem[1] * tam_quadrado + character_offset_y)
+    )
 
-        tela.blit(
-            current_character,
-            (offset_x + posicao_personagem[0] * tam_quadrado + character_offset_x,
-             offset_y + posicao_personagem[1] * tam_quadrado + character_offset_y)
-        )
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-            elif event.type == pygame.KEYDOWN:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            jogando = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:  # Reiniciar o jogo
+                reiniciar_jogo()
+            elif event.key == pygame.K_q:  # Sair do jogo
+                jogando = False
+            elif event.key in (pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT):
                 nova_posicao = list(posicao_personagem)
                 if event.key == pygame.K_UP:
                     nova_posicao[1] -= 1
@@ -203,7 +191,6 @@ while True:
                     current_character = character_right
 
                 nova_posicao = tuple(nova_posicao)
-
                 if len(caminho_jogador) < len(caminho) and nova_posicao == caminho[len(caminho_jogador)]:
                     posicao_personagem = nova_posicao
                     caminho_jogador.append(posicao_personagem)
@@ -211,13 +198,11 @@ while True:
                     vidas -= 1
                     exibir_mensagem("Você perdeu", vermelho)
                     if vidas == 0:
-                        acao = menu_game_over()
-                        if acao == "restart":
+                        escolha = exibir_menu_game_over()
+                        if escolha == "restart":
                             reiniciar_jogo()
-                            jogando = True
                         else:
-                            pygame.quit()
-                            quit()
+                            jogando = False
                     else:
                         caminho_jogador = [caminho[0]]
                         posicao_personagem = caminho[0]
@@ -235,4 +220,6 @@ while True:
                     caminho_jogador = [posicao_personagem]
                     mostrar_caminho(caminho, offset_x, offset_y)
 
-        pygame.display.flip()
+    pygame.display.flip()
+
+pygame.quit()
