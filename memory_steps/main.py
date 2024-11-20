@@ -19,23 +19,71 @@ vermelho = (255, 0, 0)
 linhas_iniciais, colunas = 3, 4
 tam_quadrado = 80
 
-# Carregar imagens
-background_image = pygame.image.load('./background/background.jpg')
-background_image = pygame.transform.scale(background_image, (largura_tela, altura_tela - 100))
-character_front = pygame.image.load('./person/person_front.png')
-character_front = pygame.transform.scale(character_front, (tam_quadrado - 20, tam_quadrado - 20))
-character_back = pygame.image.load('./person/person_back.png')
-character_back = pygame.transform.scale(character_back, (tam_quadrado - 20, tam_quadrado - 20))
-character_left = pygame.image.load('./person/person_left.png')
-character_left = pygame.transform.scale(character_left, (tam_quadrado - 20, tam_quadrado - 20))
-character_right = pygame.image.load('./person/person_right.png')
-character_right = pygame.transform.scale(character_right, (tam_quadrado - 20, tam_quadrado - 20))
+def redimensionar_imagem(imagem, tam_quadrado):
+    largura_original, altura_original = imagem.get_size()
+    escala = min((tam_quadrado - 10) / largura_original, (tam_quadrado - 10) / altura_original)
+    nova_largura = int(largura_original * escala)
+    nova_altura = int(altura_original * escala)
+    return pygame.transform.scale(imagem, (nova_largura, nova_altura))
+
+# Função para selecionar personagem
+def selecionar_personagem():
+    """
+    Exibe uma tela para o usuário escolher o personagem masculino ou feminino.
+    """
+    while True:
+        tela.fill(preto)
+        fonte = pygame.font.SysFont(None, 48)
+        texto_titulo = fonte.render("Selecione seu personagem", True, branco)
+        texto_masculino = fonte.render("1. Personagem Masculino", True, branco)
+        texto_feminino = fonte.render("2. Personagem Feminino", True, branco)
+        tela.blit(texto_titulo, (largura_tela // 6, altura_tela // 4))
+        tela.blit(texto_masculino, (largura_tela // 6, altura_tela // 3 + 60))
+        tela.blit(texto_feminino, (largura_tela // 6, altura_tela // 3 + 120))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    return "masculino"
+                elif event.key == pygame.K_2:
+                    return "feminino"
+
+
+# Adiciona a escolha do personagem antes de iniciar o jogo
+escolha_personagem = selecionar_personagem()
+
+# Carregar imagens do personagem selecionado
+if escolha_personagem == "masculino":
+    character_front = pygame.image.load('./person/frente_masculino.png')
+    character_back = pygame.image.load('./person/costas_masculino.png')
+    character_left = pygame.image.load('./person/lado_esquerdo_masculino.png')
+    character_right = pygame.image.load('./person/lado_direito_masculino.png')
+else:
+    character_front = pygame.image.load('./person/frente_feminino.png')
+    character_back = pygame.image.load('./person/costas_feminino.png')
+    character_left = pygame.image.load('./person/lado_esquerdo_feminino.png')
+    character_right = pygame.image.load('./person/lado_direito_feminino.png')
+
+# Redimensionar as imagens do personagem
+# Redimensionar as imagens do personagem proporcionalmente
+character_front = redimensionar_imagem(character_front, tam_quadrado)
+character_back = redimensionar_imagem(character_back, tam_quadrado)
+character_left = redimensionar_imagem(character_left, tam_quadrado)
+character_right = redimensionar_imagem(character_right, tam_quadrado)
+
 vida_icon = pygame.image.load('./assets/heart.png')
 vida_icon = pygame.transform.scale(vida_icon, (40, 40))
 
 current_character = character_front
 character_offset_x = (tam_quadrado - character_front.get_width()) // 2
 character_offset_y = (tam_quadrado - character_front.get_height()) // 2
+
+background_image = pygame.image.load('./background/background.jpg')
+background_image = pygame.transform.scale(background_image, (largura_tela, altura_tela - 100))
 
 # Funções auxiliares
 def calcular_offset_centralizado(linhas, colunas, tam_quadrado):
@@ -58,7 +106,7 @@ def gerar_caminho_continuo(tamanho, grid_posicoes):
     caminho = [random.choice(grid_posicoes)]
     while len(caminho) < tamanho:
         x, y = caminho[-1]
-        vizinhos = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]
+        vizinhos = [(x+1, y), (x-1, y), (x, y+1), (x-1, y)]
         vizinhos = [v for v in vizinhos if v in grid_posicoes and v not in caminho]
         if vizinhos:
             caminho.append(random.choice(vizinhos))
@@ -75,7 +123,7 @@ def mostrar_caminho(caminho, offset_x, offset_y):
         pygame.display.flip()
         time.sleep(0.5)
         tela.blit(background_image, (0, 0))
-        desenhar_grid(linhas, offset_x, offset_y)
+        desenhar_grid(len(caminho), offset_x, offset_y)
     pygame.display.flip()
 
 def desenhar_hud(fase, vidas):
@@ -152,6 +200,9 @@ caminho = gerar_caminho_continuo(fase + 1, grid_posicoes)
 posicao_personagem = caminho[0]
 caminho_jogador = [posicao_personagem]
 
+# Exibir o caminho antes de iniciar o loop principal
+mostrar_caminho(caminho, offset_x, offset_y)
+
 # Loop principal
 jogando = True
 while jogando:
@@ -211,6 +262,10 @@ while jogando:
                         mostrar_caminho(caminho, offset_x, offset_y)
 
                 if len(caminho_jogador) == len(caminho):
+                    if fase == 0:
+                        exibir_mensagem("Parabéns, você zerou o jogo!", branco)
+                        jogando = False
+                        break
                     exibir_mensagem("Você venceu", branco)
                     fase += 1
                     vidas = 3
