@@ -26,49 +26,10 @@ def redimensionar_imagem(imagem, tam_quadrado):
     nova_altura = int(altura_original * escala)
     return pygame.transform.scale(imagem, (nova_largura, nova_altura))
 
-# Função para selecionar personagem
-def selecionar_personagem():
-    """
-    Exibe uma tela para o usuário escolher o personagem masculino ou feminino.
-    """
-    while True:
-        tela.fill(preto)
-        fonte = pygame.font.SysFont(None, 48)
-        texto_titulo = fonte.render("Selecione seu personagem", True, branco)
-        texto_masculino = fonte.render("1. Personagem Masculino", True, branco)
-        texto_feminino = fonte.render("2. Personagem Feminino", True, branco)
-        tela.blit(texto_titulo, (largura_tela // 6, altura_tela // 4))
-        tela.blit(texto_masculino, (largura_tela // 6, altura_tela // 3 + 60))
-        tela.blit(texto_feminino, (largura_tela // 6, altura_tela // 3 + 120))
-        pygame.display.flip()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1:
-                    return "masculino"
-                elif event.key == pygame.K_2:
-                    return "feminino"
-
-
-# Adiciona a escolha do personagem antes de iniciar o jogo
-escolha_personagem = selecionar_personagem()
-
-# Carregar imagens do personagem selecionado
-if escolha_personagem == "masculino":
-    character_front = pygame.image.load('./person/masculino/frente_masculino.png')
-    character_back = pygame.image.load('./person/masculino/costas_masculino.png')
-    character_left = pygame.image.load('./person/masculino/lado_esquerdo_masculino.png')
-    character_right = pygame.image.load('./person/masculino/lado_direito_masculino.png')
-else:
-    character_front = pygame.image.load('./person/feminino/frente_feminino.png')
-    character_back = pygame.image.load('./person/feminino/costas_feminino.png')
-    character_left = pygame.image.load('./person/feminino/lado_esquerdo_feminino.png')
-    character_right = pygame.image.load('./person/feminino/lado_direito_masculino.png')
-
-# Redimensionar as imagens do personagem
+character_front = pygame.image.load('./person/masculino/frente_masculino.png')
+character_back = pygame.image.load('./person/masculino/costas_masculino.png')
+character_left = pygame.image.load('./person/masculino/lado_esquerdo_masculino.png')
+character_right = pygame.image.load('./person/masculino/lado_direito_masculino.png')
 # Redimensionar as imagens do personagem proporcionalmente
 character_front = redimensionar_imagem(character_front, tam_quadrado)
 character_back = redimensionar_imagem(character_back, tam_quadrado)
@@ -128,7 +89,7 @@ def mostrar_caminho(caminho, offset_x, offset_y):
 
 def desenhar_hud(fase, vidas):
     fonte = pygame.font.SysFont(None, 36)
-    texto_fase = fonte.render(f"Fase: {fase}", True, branco)
+    texto_fase = fonte.render(f"Fase: {fase}", True, branco, preto)
     tela.blit(texto_fase, (10, 10))
     for i in range(vidas):
         tela.blit(vida_icon, (largura_tela - (i + 1) * 50, 10))
