@@ -223,7 +223,7 @@ while jogando:
                         mostrar_caminho(caminho, offset_x, offset_y)
 
                 if len(caminho_jogador) == len(caminho):
-                    if fase == 0:
+                    if fase == 20:
                         exibir_mensagem("Parabéns, você zerou o jogo!", branco)
                         jogando = False
                         break
