@@ -6,7 +6,7 @@ import time
 pygame.init()
 largura_tela, altura_tela = 600, 700  # Altura aumentada para incluir o menu fixo
 tela = pygame.display.set_mode((largura_tela, altura_tela))
-pygame.display.set_caption("Jogo de Memorização")
+pygame.display.set_caption("Memory Steps")
 
 # Cores
 verde = (34, 139, 34)
